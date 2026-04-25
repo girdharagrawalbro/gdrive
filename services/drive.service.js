@@ -110,7 +110,6 @@ async function setPublicPermission(fileId) {
             role: 'reader',
             type: 'anyone',
         },
-        supportsAllDrives: true,
     });
 }
 
@@ -222,7 +221,7 @@ async function uploadFromUrl(url, options = {}) {
  */
 async function deleteFile(fileId) {
     const drive = getDrive();
-    await drive.files.delete({ 
+    await drive.files.delete({
         fileId,
         supportsAllDrives: true,
     });
