@@ -76,6 +76,8 @@ async function resolveFolder(folderName, parentId) {
         q: `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and '${parentId}' in parents and trashed=false`,
         fields: 'files(id, name)',
         spaces: 'drive',
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
     });
 
     if (searchRes.data.files && searchRes.data.files.length > 0) {
@@ -90,6 +92,7 @@ async function resolveFolder(folderName, parentId) {
             parents: [parentId],
         },
         fields: 'id',
+        supportsAllDrives: true,
     });
 
     return createRes.data.id;
@@ -107,6 +110,7 @@ async function setPublicPermission(fileId) {
             role: 'reader',
             type: 'anyone',
         },
+        supportsAllDrives: true,
     });
 }
 
@@ -153,6 +157,7 @@ async function uploadFile(buffer, fileName, mimeType, options = {}) {
         requestBody: fileMetadata,
         media,
         fields: 'id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, parents',
+        supportsAllDrives: true,
     });
 
     const fileId = uploadRes.data.id;
@@ -164,6 +169,7 @@ async function uploadFile(buffer, fileName, mimeType, options = {}) {
     const fileRes = await drive.files.get({
         fileId,
         fields: 'id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, parents',
+        supportsAllDrives: true,
     });
 
     return formatFileResponse(fileRes.data);
@@ -216,7 +222,10 @@ async function uploadFromUrl(url, options = {}) {
  */
 async function deleteFile(fileId) {
     const drive = getDrive();
-    await drive.files.delete({ fileId });
+    await drive.files.delete({ 
+        fileId,
+        supportsAllDrives: true,
+    });
     return { fileId, deleted: true };
 }
 
@@ -230,6 +239,7 @@ async function getFile(fileId) {
     const res = await drive.files.get({
         fileId,
         fields: 'id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, parents',
+        supportsAllDrives: true,
     });
     return formatFileResponse(res.data);
 }
@@ -255,6 +265,8 @@ async function listFiles(folderId = null, pageSize = 20, pageToken = null) {
         pageSize: Math.min(Number(pageSize) || 20, 100),
         spaces: 'drive',
         orderBy: 'createdTime desc',
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true,
     };
 
     if (pageToken) params.pageToken = pageToken;
