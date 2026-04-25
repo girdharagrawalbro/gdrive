@@ -122,11 +122,12 @@ async function setPublicPermission(fileId) {
  * @param {string} fileName      Original filename (used for Drive display name)
  * @param {string} mimeType      e.g. "image/jpeg", "video/mp4", "application/pdf"
  * @param {Object} options
- * @param {string} [options.folder]   Sub-folder name inside the root Drive folder
  * @param {string} [options.name]     Override the stored filename
  * @returns {Object} Formatted file response
  */
 async function uploadFile(buffer, fileName, mimeType, options = {}) {
+    console.log('[DEBUG] ROOT_FOLDER_ID:', process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID);
+    console.log('[DEBUG] options:', options);
     const drive = getDrive();
     const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
 
@@ -157,6 +158,7 @@ async function uploadFile(buffer, fileName, mimeType, options = {}) {
         media,
         fields: 'id, name, mimeType, size, webViewLink, webContentLink, thumbnailLink, createdTime, parents',
         supportsAllDrives: true,
+        enforceSingleParent: true,
     });
 
     const fileId = uploadRes.data.id;

@@ -28,6 +28,7 @@ const {
 //   name    (string)  — override the stored filename
 // ─────────────────────────────────────────────────────────────────────────────
 router.post('/upload', upload.single('file'), async (req, res) => {
+    console.log(req.body);
     try {
         let result;
 
