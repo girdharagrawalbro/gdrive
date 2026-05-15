@@ -78,15 +78,17 @@ app.listen(PORT, () => {
     console.log('');
 
     // ─── Self-ping keep-alive (Render free-tier) ───────────────────────────
-    const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
-    setInterval(async () => {
-        try {
-            const axios = require('axios');
-            const url = (process.env.GDRIVE_SERVICE_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
-            await axios.get(`${url}/ping`);
-            console.log(`[Self-Ping] Keep-alive sent to ${url}/ping`);
-        } catch (err) {
-            console.error('[Self-Ping] Error:', err.message);
-        }
-    }, PING_INTERVAL);
+    if (process.env.ENABLE_PING === 'true') {
+        const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+        setInterval(async () => {
+            try {
+                const axios = require('axios');
+                const url = (process.env.GDRIVE_SERVICE_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
+                await axios.get(`${url}/ping`);
+                console.log(`[Self-Ping] Keep-alive sent to ${url}/ping`);
+            } catch (err) {
+                console.error('[Self-Ping] Error:', err.message);
+            }
+        }, PING_INTERVAL);
+    }
 });

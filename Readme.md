@@ -257,6 +257,7 @@ Any file type is accepted. Common examples:
 | `GOOGLE_DRIVE_ROOT_FOLDER_ID` | ✅ | — | Shared Drive folder ID |
 | `CORS_ORIGINS` | ❌ | `*` | Comma-separated allowed origins |
 | `GDRIVE_SERVICE_URL` | ❌ | `http://localhost:5002` | Public URL (for self-ping keep-alive) |
+| `ENABLE_PING` | ❌ | `false` | Enable self-ping keep-alive (set to `true` to enable) |
 
 ---
 
