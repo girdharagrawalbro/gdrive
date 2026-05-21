@@ -280,6 +280,58 @@ async function listFiles(folderId = null, pageSize = 20, pageToken = null) {
     };
 }
 
+/**
+ * Initiates a Google Drive resumable upload session.
+ * Returns { success: true, sessionUrl } — the client PUT's the raw file bytes
+ * directly to sessionUrl (no auth header needed; it's encoded in the URL).
+ *
+ * @param {string} name       Filename to store in Drive
+ * @param {string} mimeType   MIME type of the file
+ * @param {Object} options    { folder }
+ */
+async function initiateResumableUpload(name, mimeType, options = {}) {
+    const { getAuth } = require('../config/google.config');
+    const rootFolderId = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
+
+    if (!rootFolderId) {
+        throw new Error('GOOGLE_DRIVE_ROOT_FOLDER_ID is not set in environment variables.');
+    }
+
+    // Resolve the target folder
+    let parentId = rootFolderId;
+    if (options.folder) {
+        parentId = await resolveFolder(options.folder, rootFolderId);
+    }
+
+    const auth = getAuth();
+    // Get a fresh access token
+    const { token } = await auth.getAccessToken();
+
+    const metadata = JSON.stringify({
+        name: name || `upload-${Date.now()}`,
+        parents: [parentId],
+    });
+
+    // Step 1: POST to Drive to get the resumable session URL
+    const axios = require('axios');
+    const initRes = await axios.post(
+        `https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true`,
+        metadata,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json; charset=UTF-8',
+                'X-Upload-Content-Type': mimeType,
+            },
+        }
+    );
+
+    const sessionUrl = initRes.headers.location;
+    if (!sessionUrl) throw new Error('Google Drive did not return a resumable session URL.');
+
+    return { success: true, sessionUrl };
+}
+
 module.exports = {
     uploadFile,
     uploadBase64,
@@ -288,4 +340,5 @@ module.exports = {
     getFile,
     listFiles,
     setPublicPermission,
+    initiateResumableUpload,
 };

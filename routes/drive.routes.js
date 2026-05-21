@@ -14,6 +14,7 @@ const {
     deleteFile,
     getFile,
     listFiles,
+    initiateResumableUpload,
 } = require('../services/drive.service');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -174,5 +175,33 @@ router.get('/list', async (req, res) => {
     }
 });
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ✅  POST /api/drive/initiate-resumable
+//
+// Initiates a Google Drive resumable upload session.
+// Returns { success: true, sessionUrl: "..." }
+//
+// Body:
+//   name      (string, required)  — filename
+//   mimeType  (string, required)  — MIME type of file
+//   folder    (string, optional)  — sub-folder name
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/initiate-resumable', async (req, res) => {
+    try {
+        const { name, mimeType, folder } = req.body;
+
+        if (!name || !mimeType) {
+            return res.status(400).json({ success: false, message: 'name and mimeType are required' });
+        }
+
+        const result = await initiateResumableUpload(name, mimeType, { folder });
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error('[DriveStore] Initiate Resumable Error:', error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
  module.exports = router;
