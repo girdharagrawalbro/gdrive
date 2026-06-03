@@ -55,7 +55,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             });
         }
 
-        res.status(200).json({ success: true });
+        res.status(200).json({ success: true, data: result });
 
     } catch (error) {
         console.error('[DriveStore] Upload Error:', error.message);
